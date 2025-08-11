@@ -21,7 +21,9 @@ import { useUser } from "../../../Context/UserContext";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { makeStyles } from "@mui/styles";
-
+import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill";
+import { Checkbox, FormControlLabel } from "@mui/material";
 const useStyles = makeStyles({
   selectInput: {
     minWidth: 200,
@@ -41,7 +43,8 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
   const [category, setCategory] = useState("");
   const [imageFiles, setImageFiles] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
-  
+  const [material, setMaterial] = useState("");
+  const [inStock, setInStock] = useState(true);
   const [categoryImage, setCategoryImage] = useState(null);
   const [categoryPreview, setCategoryPreview] = useState("");
 
@@ -67,11 +70,13 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
       setDiscount(initialData?.discount || 0);
       setReferenceWebsite(initialData?.referenceWebsite || "");
       setCategory(initialData?.category?._id || "");
+      setMaterial(initialData?.material || "");
       setPreviewImages(
         initialData?.images?.map(
           (img) => `https://api.jajamblockprints.com${img}`
         ) || []
       );
+      setInStock(initialData?.stock > 0); 
     } else {
       resetForm();
     }
@@ -92,6 +97,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
     setReferenceWebsite("");
     setCategory("");
     setSubCategory("");
+    setMaterial("");
     setImageFiles([]);
     setPreviewImages([]);
     setCategoryImage(null);
@@ -156,6 +162,9 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
       formData.append("size", JSON.stringify(cleanedSizes));
       formData.append("referenceWebsite", referenceWebsite);
       formData.append("category", category);
+      formData.append("material", material);
+     formData.append("stock", inStock ? 1 : 0);
+
       imageFiles.forEach((file) => {
         formData.append("images", file);
       });
@@ -239,7 +248,15 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
         </Button>
       ) : null}
 
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog
+        open={open}
+        fullWidth
+        maxWidth="lg"
+        PaperProps={{
+          sx: { width: "900px", maxWidth: "90vw" },
+        }}
+        onClose={handleClose}
+      >
         <DialogTitle sx={{ color: "#872d67" }}>
           {initialData
             ? "Update Product"
@@ -249,7 +266,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
         </DialogTitle>
 
         <DialogContent>
-          <Grid container spacing={2} sx={{ width: "400px" }}>
+          <Grid container spacing={2} sx={{ width: "100%" }}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -317,14 +334,12 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
             {!addCategory && (
               <>
                 <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Description"
-                    variant="outlined"
+                  <ReactQuill
+                    theme="snow"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    multiline
-                    rows={4}
+                    onChange={(value) => setDescription(value)}
+                    placeholder="Enter product description..."
+                    style={{ background: "#fff", borderRadius: 4 }}
                   />
                 </Grid>
 
@@ -368,6 +383,15 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                     }}
                   />
                 </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Material"
+                    variant="outlined"
+                    value={material}
+                    onChange={(e) => setMaterial(e.target.value)}
+                  />
+                </Grid>
 
                 <Grid item xs={12}>
                   <strong>Sizes & Prices</strong>
@@ -381,6 +405,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                       key={index}
                       alignItems="center"
                       sx={{ mb: 1 }}
+                      style={{marginLeft:"10px"}}
                     >
                       <Grid item xs={5}>
                         <TextField
@@ -410,7 +435,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                         />
                       </Grid>
                       <Grid item xs={2}>
-                        <IconButton
+                        <IconButton 
                           onClick={() => {
                             if (index === sizes.length - 1) {
                               setSizes([...sizes, { sizes: "", price: 0 }]);
@@ -465,6 +490,17 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                       ))}
                     </Select>
                   </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={inStock}
+                        onChange={(e) => setInStock(e.target.checked)}
+                      />
+                    }
+                    label="In Stock"
+                  />
                 </Grid>
               </>
             )}
