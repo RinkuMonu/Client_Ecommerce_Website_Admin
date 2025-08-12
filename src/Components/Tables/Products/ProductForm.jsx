@@ -131,8 +131,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
           (!initialData && imageFiles.length === 0) ||
           !price ||
           !referenceWebsite ||
-          !category ||
-          cleanedSizes.length === 0)) ||
+          !category )) ||
       (addCategory && (!productName || !categoryImage))
     ) {
       setSnackbarMessage("Please fill all required fields");
