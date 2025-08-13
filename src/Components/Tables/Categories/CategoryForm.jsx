@@ -24,6 +24,7 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [parentCategory, setParentCategory] = useState("");
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -96,29 +97,29 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
     console.log(categoryImage, "category image");
   };
 
-  const [groupedCategories, setGroupedCategories] = useState({});
+  const [groupedCategories, setGroupedCategories] = useState([]);
 
   useEffect(() => {
     if (!user?.referenceWebsite) return;
-    const referenceWebsite = "686f69980a9e01743e29bd4c";
+    // const referenceWebsite = "686f69980a9e01743e29bd4c";
     const fetchCategories = async () => {
       try {
         const res = await fetch(
-          `https://api.jajamblockprints.com/api/website/${referenceWebsite}`
+          `https://api.jajamblockprints.com/api/categories/getMainCategory`
         );
         const data = await res.json();
 
         // Group items by subcategory
-        const grouped = {};
-        if (Array.isArray(data?.website?.categories)) {
-          data?.website?.categories.forEach((item) => {
-            const sub = item?.subcategory;
-            if (!grouped[sub]) grouped[sub] = [];
-            grouped[sub].push(item);
-          });
-        }
+        // const grouped = {};
+        // if (Array.isArray(data?.website?.categories)) {
+        //   data?.website?.categories.forEach((item) => {
+        //     const sub = item?.subcategory;
+        //     if (!grouped[sub]) grouped[sub] = [];
+        //     grouped[sub].push(item);
+        //   });
+        // }
 
-        setGroupedCategories(grouped);
+        setGroupedCategories(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
@@ -176,15 +177,15 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
 
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel>Parent Category (optional)</InputLabel>
+                <InputLabel>Parent Category</InputLabel>
                 <Select
                   value={parentCategory}
                   onChange={(e) => setParentCategory(e.target.value)}
                   displayEmpty
                 >
-                  {Object.keys(groupedCategories).map((key) => (
-                    <MenuItem key={key} value={key}>
-                      {key}
+                  {groupedCategories?.map((item) => (
+                    <MenuItem key={item.id} value={item.subcategory}>
+                      {item.subcategory}
                     </MenuItem>
                   ))}
                 </Select>

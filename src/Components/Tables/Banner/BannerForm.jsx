@@ -15,7 +15,7 @@ import {
   FormControl,
   IconButton,
 } from "@mui/material";
-import { apiPost, apiPut } from "../../../api/apiMethods";
+import { apiGet, apiPost, apiPut } from "../../../api/apiMethods";
 import { EditNoteOutlined } from "@mui/icons-material";
 import { useUser } from "../../../Context/UserContext";
 import AddIcon from "@mui/icons-material/Add";
@@ -34,6 +34,7 @@ const BannerForm = ({ dataHandler, initialData, websites }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [CategoryName, setCategoryName] = useState([]);
 
   const { user } = useUser();
 
@@ -129,7 +130,13 @@ const BannerForm = ({ dataHandler, initialData, websites }) => {
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleSnackbarClose = () => setSnackbarOpen(false);
-
+  useEffect(() => {
+    const fetchCategoriesName = async () => {
+      const res = await apiGet("/api/categories");
+      setCategoryName(res.data);
+    };
+    fetchCategoriesName();
+  }, [open, setOpen]);
   return (
     <div>
       {initialData ? (
@@ -167,40 +174,13 @@ const BannerForm = ({ dataHandler, initialData, websites }) => {
                   onChange={(e) => setDescription(e.target.value)}
                   label="Filter tag"
                 >
-                  <MenuItem value="kalmkari-print-fabric">
-                    Kalmkari Print Fabric
-                  </MenuItem>
-                  <MenuItem value="cotton-mal-mal-saree">
-                    Cotton mal mal saree
-                  </MenuItem>
-                  <MenuItem value="chanderi-silk-saree">
-                    Chanderi Silk saree
-                  </MenuItem>
-                  <MenuItem value="maheswari-silk-saree">
-                    Maheswari Silk saree
-                  </MenuItem>
-                  <MenuItem value="kota-doriya-saree">
-                    Kota Doriya Saree
-                  </MenuItem>
-                  <MenuItem value="cotton-suit">Cotton Suit</MenuItem>
-                  <MenuItem value="sanganeri-print-fabric">
-                    Sanganeri Print Fabric
-                  </MenuItem>
-                  <MenuItem value="dabu-print-fabric">
-                    Dabu Print Fabric
-                  </MenuItem>
-                  <MenuItem value="bagru-print">Bagru Print</MenuItem>
-                  <MenuItem value="cotton-suit-in-kota">
-                    Cotton Suit In Kota
-                  </MenuItem>
-                  <MenuItem value="chanderi-silk-suits">
-                    Chanderi Silk Suits
-                  </MenuItem>
-                  <MenuItem value="maheshwari-silk-suits">
-                    Maheshwari Silk Suits
-                  </MenuItem>
-                  <MenuItem value="newArrival">New Arrivals</MenuItem>
-                  <MenuItem value="customPrice">Custom Price</MenuItem>
+                  {CategoryName.map((item, index) => {
+                    return (
+                      <MenuItem key={index} value={item?.name}>
+                        {item?.name}
+                      </MenuItem>
+                    );
+                  })}
                 </Select>
               </FormControl>
             </Grid>
