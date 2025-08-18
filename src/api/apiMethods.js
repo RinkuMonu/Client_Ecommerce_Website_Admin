@@ -5,7 +5,7 @@ function apiGet(url, params = {}) {
   return axiosInstance.get(url, { params });
 }
 
-function apiPost(url, body, contentType = "application/json") {
+function apiPost(url, body, contentType = "multipart/form-data") {
   const headers = {
     "Content-Type": contentType,
   };

@@ -14,9 +14,10 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
+  Box,
 } from "@mui/material";
 import { apiPost, apiPut } from "../../../api/apiMethods";
-import { EditNoteOutlined } from "@mui/icons-material";
+import { EditNoteOutlined, Close } from "@mui/icons-material";
 import { useUser } from "../../../Context/UserContext";
 
 const CategoryForm = ({ dataHandler, initialData, categories }) => {
@@ -28,8 +29,11 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [categoryImage, setCategoryImage] = useState(null);
-
+  // const [categoryImage, setCategoryImage] = useState(null);
+  // const [categoryPreview, setCategoryPreview] = useState("");
+  const [categoryImage, setCategoryImage] = useState([]); // was: null
+  const [categoryPreview, setCategoryPreview] = useState([]); // was: ""
+// console.log(categoryPreview,"Category preview")
   const { user } = useUser();
 
   useEffect(() => {
@@ -37,10 +41,20 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
       setName(initialData.name || "");
       setDescription(initialData.description || "");
       setParentCategory(initialData.subcategory || "");
+      // Set initial image preview if available
+     
+      if (initialData.image) {
+      const imageUrl = `https://api.jajamblockprints.com${initialData.image}`;
+      if (categoryImage.length === 0) {
+        setCategoryPreview([imageUrl]);
+      }
+    }
     } else {
       setName("");
       setDescription("");
       setParentCategory("");
+      setCategoryPreview("");
+      setCategoryImage(null);
     }
   }, [initialData]);
 
@@ -57,15 +71,10 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
     formData.append("description", description);
     formData.append("subcategory", parentCategory || "");
     formData.append("referenceWebsite", user?.referenceWebsite || "");
-
-    if (categoryImage) {
-      formData.append("images", categoryImage); // ✅ use "images"
-    }
-
-    // ✅ optional: debug payload
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ":", pair[1]);
-    }
+    // Only append image if a new one was selected
+categoryImage.forEach((file) => {
+        formData.append("images", file);
+      });
 
     try {
       const response = initialData
@@ -88,37 +97,30 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
   };
 
   const handleCategoryImageUpload = (e) => {
-    const file = e.target.files[0];
-    console.log(file, "category image files");
-    if (file) {
-      setCategoryImage(file);
-      setCategoryPreview(URL.createObjectURL(file));
-    }
-    console.log(categoryImage, "category image");
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setCategoryImage(files); // store all selected files
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setCategoryPreview(previews); // store preview URLs as array
   };
+
+const handleRemoveImage = (index) => {
+  setCategoryImage((prev) => prev.filter((_, i) => i !== index));
+  setCategoryPreview((prev) => prev.filter((_, i) => i !== index));
+};
+
 
   const [groupedCategories, setGroupedCategories] = useState([]);
 
   useEffect(() => {
     if (!user?.referenceWebsite) return;
-    // const referenceWebsite = "686f69980a9e01743e29bd4c";
     const fetchCategories = async () => {
       try {
         const res = await fetch(
           `https://api.jajamblockprints.com/api/categories/getMainCategory`
         );
         const data = await res.json();
-
-        // Group items by subcategory
-        // const grouped = {};
-        // if (Array.isArray(data?.website?.categories)) {
-        //   data?.website?.categories.forEach((item) => {
-        //     const sub = item?.subcategory;
-        //     if (!grouped[sub]) grouped[sub] = [];
-        //     grouped[sub].push(item);
-        //   });
-        // }
-
         setGroupedCategories(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
@@ -172,8 +174,65 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
                 accept="image/*"
                 onChange={handleCategoryImageUpload}
                 style={{ marginTop: 8 }}
+                id="category-image-upload"
+                hidden
               />
+              <label htmlFor="category-image-upload">
+                <Button variant="contained" component="span">
+                  Upload Image
+                </Button>
+              </label>
             </Grid>
+
+            {categoryPreview.length > 0 && (
+              <Grid
+                item
+                xs={12}
+                sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}
+              >
+                {categoryPreview.map((preview, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: "relative",
+                      width: "120px",
+                      height: "120px",
+                      border: "1px dashed #ccc",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <img
+                      src={preview}
+                      alt={`Category preview ${index}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <IconButton
+                      onClick={() => handleRemoveImage(index)}
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "rgba(0,0,0,0.7)",
+                        },
+                      }}
+                    >
+                      <Close />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <FormControl fullWidth>

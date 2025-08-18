@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import {
   Paper,
@@ -72,6 +70,7 @@ const CategoryPage = () => {
             <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ fontWeight: 600 }}>#</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Image</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Parent Category</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
@@ -89,6 +88,23 @@ const CategoryPage = () => {
                 <TableRow key={item._id} hover>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.image ? (
+                      <img
+                        src={`https://api.jajamblockprints.com${item.image}`}
+                        alt={item.name || "category-image"}
+                        style={{
+                          width: 60,
+                          height: 60,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                        }}
+                      />
+                    ) : (
+                      "No Image"
+                    )}
+                  </TableCell>
+
                   <TableCell>{item.subcategory || "—"}</TableCell>
                   <TableCell>{item.description || "NA"}</TableCell>
                   <TableCell>
