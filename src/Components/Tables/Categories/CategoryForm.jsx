@@ -33,7 +33,7 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
   // const [categoryPreview, setCategoryPreview] = useState("");
   const [categoryImage, setCategoryImage] = useState([]); // was: null
   const [categoryPreview, setCategoryPreview] = useState([]); // was: ""
-// console.log(categoryPreview,"Category preview")
+  // console.log(categoryPreview,"Category preview")
   const { user } = useUser();
 
   useEffect(() => {
@@ -42,13 +42,13 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
       setDescription(initialData.description || "");
       setParentCategory(initialData.subcategory || "");
       // Set initial image preview if available
-     
+
       if (initialData.image) {
-      const imageUrl = `https://api.jajamblockprints.com${initialData.image}`;
-      if (categoryImage.length === 0) {
-        setCategoryPreview([imageUrl]);
+        const imageUrl = `https://api.jajamblockprints.com${initialData.image}`;
+        if (categoryImage.length === 0) {
+          setCategoryPreview([imageUrl]);
+        }
       }
-    }
     } else {
       setName("");
       setDescription("");
@@ -72,9 +72,9 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
     formData.append("subcategory", parentCategory || "");
     formData.append("referenceWebsite", user?.referenceWebsite || "");
     // Only append image if a new one was selected
-categoryImage.forEach((file) => {
-        formData.append("images", file);
-      });
+    categoryImage.forEach((file) => {
+      formData.append("images", file);
+    });
 
     try {
       const response = initialData
@@ -105,11 +105,10 @@ categoryImage.forEach((file) => {
     setCategoryPreview(previews); // store preview URLs as array
   };
 
-const handleRemoveImage = (index) => {
-  setCategoryImage((prev) => prev.filter((_, i) => i !== index));
-  setCategoryPreview((prev) => prev.filter((_, i) => i !== index));
-};
-
+  const handleRemoveImage = (index) => {
+    setCategoryImage((prev) => prev.filter((_, i) => i !== index));
+    setCategoryPreview((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const [groupedCategories, setGroupedCategories] = useState([]);
 
