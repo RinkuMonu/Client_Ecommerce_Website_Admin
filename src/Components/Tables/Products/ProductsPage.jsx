@@ -25,7 +25,9 @@ import {
 import { apiDelete, apiGet } from "../../../api/apiMethods";
 import ProductForm from "./ProductForm";
 import ProductDetail from "./ProductDetail";
+import OfferDialog from "./OfferDialog";
 import { DeleteForeverOutlined, Height } from "@mui/icons-material";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import DeleteDialog from "../Website/DeleteDialog";
 import { useUser } from "../../../Context/UserContext";
 import { makeStyles } from "@mui/styles";
@@ -94,6 +96,21 @@ const ProductsPage = () => {
     }
   }, [user]);
 
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [selectedOfferId, setSelectedOfferId] = useState(null);
+  const [selectedOfferDiscount, setSelectedOfferDiscount] = useState(0);
+
+  const openOfferDialog = (id, discount) => {
+    setSelectedOfferId(id);
+    setSelectedOfferDiscount(discount);
+    setOfferOpen(true);
+  };
+
+  const closeOfferDialog = () => {
+    setOfferOpen(false);
+    setSelectedOfferId(null);
+    setSelectedOfferDiscount(0);
+  };
   // useEffect(() => {
   //     if (filterWebsite) {
   //         const matchedWebsite = websites.find((website) => website._id === filterWebsite);
@@ -361,6 +378,16 @@ const ProductsPage = () => {
                     backgroundColor: "#fbe5ec",
                   }}
                 >
+                  <strong>Coupon Code</strong>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    border: "1px solid #ddd",
+                    whiteSpace: "nowrap",
+                    padding: "8px",
+                    backgroundColor: "#fbe5ec",
+                  }}
+                >
                   <strong>Actions</strong>
                 </TableCell>
               </TableRow>
@@ -430,7 +457,7 @@ const ProductsPage = () => {
                         padding: "8px",
                       }}
                     >
-                      ₹{item.price || "NA"} 
+                      ₹{item.price || "NA"}
                     </TableCell>
                     <TableCell
                       sx={{
@@ -452,6 +479,17 @@ const ProductsPage = () => {
                     </TableCell>
                     <TableCell
                       sx={{
+                        border: "1px solid #ddd",
+                        whiteSpace: "nowrap",
+                        padding: "8px",
+                      }}
+                    >
+                      {item.couponDetails
+                        ? `${item.couponDetails.code} - ${item.couponDetails.discountValue}% OFF`
+                        : "Coupon not applied"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
                         display: "flex",
                         border: "1px solid #ddd",
                         whiteSpace: "nowrap",
@@ -460,6 +498,9 @@ const ProductsPage = () => {
                     >
                       <IconButton onClick={() => openDialog(item._id)}>
                         <DeleteForeverOutlined />
+                      </IconButton>
+                      <IconButton onClick={() => openOfferDialog(item._id)}>
+                        <LocalOfferIcon />
                       </IconButton>
                       <ProductForm
                         categories={categories}
@@ -481,6 +522,13 @@ const ProductsPage = () => {
             setSelectedWebsite(null);
           }}
           data={selectedWebsite}
+        />
+        <OfferDialog
+          open={offerOpen}
+          onClose={closeOfferDialog}
+          productId={selectedOfferId}
+          initialDiscount={selectedOfferDiscount}
+          onSuccess={fetchData} // refresh table after saving
         />
         <DeleteDialog
           deleteHandler={deleteHandler}

@@ -18,12 +18,11 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
-
 import { EditNoteOutlined, Close } from "@mui/icons-material";
 import { useUser } from "../../../Context/UserContext";
 import { apiPost, apiPut } from "../../../api/apiMethods";
 
-const CouponForm = ({ dataHandler, initialData }) => {
+const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [discountType, setDiscountType] = useState("percentage");
@@ -42,6 +41,13 @@ const CouponForm = ({ dataHandler, initialData }) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const { user } = useUser();
 
+  // Convert ISO date to YYYY-MM-DD format for date inputs
+  const formatDateForInput = (isoDate) => {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    return date.toISOString().split("T")[0];
+  };
+
   useEffect(() => {
     if (initialData) {
       setCode(initialData.code || "");
@@ -49,8 +55,8 @@ const CouponForm = ({ dataHandler, initialData }) => {
       setDiscountValue(initialData.discountValue || 0);
       setMinOrderAmount(initialData.minOrderAmount || 0);
       setMaxDiscountAmount(initialData.maxDiscountAmount || null);
-      setStartDate(initialData.startDate || "");
-      setEndDate(initialData.endDate || "");
+      setStartDate(formatDateForInput(initialData.startDate));
+      setEndDate(formatDateForInput(initialData.endDate));
       setUsageLimit(initialData.usageLimit || null);
       setIsActive(initialData.isActive !== false);
       setApplicableProducts(initialData.applicableProducts || "all");
@@ -95,8 +101,8 @@ const CouponForm = ({ dataHandler, initialData }) => {
       discountValue: Number(discountValue),
       minOrderAmount: Number(minOrderAmount),
       maxDiscountAmount: maxDiscountAmount ? Number(maxDiscountAmount) : null,
-      startDate,
-      endDate,
+      startDate: new Date(startDate).toISOString(),
+      endDate: new Date(endDate).toISOString(),
       usageLimit: usageLimit ? Number(usageLimit) : null,
       isActive,
       applicableProducts,
@@ -109,11 +115,12 @@ const CouponForm = ({ dataHandler, initialData }) => {
         ? await apiPut(`api/coupons/${initialData._id}`, couponData)
         : await apiPost("api/coupons", couponData);
 
-      if (response.status === 200) {
-        setSnackbarMessage("Coupon saved successfully");
+      if (response.status === 200 || response.status === 201) {
+        setSnackbarMessage(response?.data?.message);
         setSnackbarSeverity("success");
         setOpen(false);
-        dataHandler();
+        if (dataHandler) dataHandler();
+        if (typeof fetchCoupons === "function") fetchCoupons();
       }
     } catch (error) {
       console.error(error);
@@ -140,8 +147,15 @@ const CouponForm = ({ dataHandler, initialData }) => {
         </Button>
       )}
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{initialData ? "Update" : "Create New"} Coupon</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {initialData ? "Update" : "Create New"} Coupon
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} pt={2}>
             <Grid item xs={12} sm={6}>
@@ -171,7 +185,9 @@ const CouponForm = ({ dataHandler, initialData }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label={`Discount Value (${discountType === "percentage" ? "%" : "₹"})*`}
+                label={`Discount Value (${
+                  discountType === "percentage" ? "%" : "₹"
+                })*`}
                 type="number"
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
@@ -248,7 +264,7 @@ const CouponForm = ({ dataHandler, initialData }) => {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Applicable To</InputLabel>
                 <Select
@@ -260,7 +276,7 @@ const CouponForm = ({ dataHandler, initialData }) => {
                   <MenuItem value="category">Product Categories</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
 
             {applicableProducts === "specific" && (
               <Grid item xs={12}>
@@ -268,8 +284,10 @@ const CouponForm = ({ dataHandler, initialData }) => {
                   fullWidth
                   label="Product IDs (comma separated)"
                   value={productIds.join(",")}
-                  onChange={(e) => 
-                    setProductIds(e.target.value.split(",").map(id => id.trim()))
+                  onChange={(e) =>
+                    setProductIds(
+                      e.target.value.split(",").map((id) => id.trim())
+                    )
                   }
                   placeholder="123, 456, 789"
                 />

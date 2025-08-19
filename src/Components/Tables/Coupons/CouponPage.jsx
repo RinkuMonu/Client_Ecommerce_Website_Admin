@@ -143,6 +143,7 @@ const CouponPage = () => {
                         }
                         size="small"
                       />
+                      
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", gap: 1 }}>
@@ -156,6 +157,7 @@ const CouponPage = () => {
                         <CouponForm
                           dataHandler={fetchCoupons}
                           initialData={coupon}
+                          fetchCoupons={fetchCoupons}
                         />
                       </Box>
                     </TableCell>
