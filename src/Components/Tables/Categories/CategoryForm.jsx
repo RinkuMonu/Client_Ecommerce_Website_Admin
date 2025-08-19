@@ -29,11 +29,10 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  // const [categoryImage, setCategoryImage] = useState(null);
-  // const [categoryPreview, setCategoryPreview] = useState("");
-  const [categoryImage, setCategoryImage] = useState([]); // was: null
-  const [categoryPreview, setCategoryPreview] = useState([]); // was: ""
-  // console.log(categoryPreview,"Category preview")
+  const [categoryImage, setCategoryImage] = useState([]);
+  const [categoryPreview, setCategoryPreview] = useState([]);
+  const [hasExistingImage, setHasExistingImage] = useState(false);
+
   const { user } = useUser();
 
   useEffect(() => {
@@ -41,20 +40,21 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
       setName(initialData.name || "");
       setDescription(initialData.description || "");
       setParentCategory(initialData.subcategory || "");
-      // Set initial image preview if available
-
+      
       if (initialData.image) {
         const imageUrl = `https://api.jajamblockprints.com${initialData.image}`;
-        if (categoryImage.length === 0) {
+        if (categoryPreview.length === 0) {
           setCategoryPreview([imageUrl]);
+          setHasExistingImage(true);
         }
       }
     } else {
       setName("");
       setDescription("");
       setParentCategory("");
-      setCategoryPreview("");
-      setCategoryImage(null);
+      setCategoryPreview([]);
+      setCategoryImage([]);
+      setHasExistingImage(false);
     }
   }, [initialData]);
 
@@ -71,10 +71,20 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
     formData.append("description", description);
     formData.append("subcategory", parentCategory || "");
     formData.append("referenceWebsite", user?.referenceWebsite || "");
-    // Only append image if a new one was selected
-    categoryImage.forEach((file) => {
-      formData.append("images", file);
-    });
+
+    // Handle image upload
+    if (categoryImage.length > 0) {
+      // If new images are selected, append them
+      categoryImage.forEach((file) => {
+        formData.append("images", file);
+      });
+    } else if (hasExistingImage && initialData?.image) {
+      // If no new images but existing image should be preserved
+      formData.append("image", initialData.image);
+    } else {
+      // If explicitly removing all images
+      formData.append("image", "");
+    }
 
     try {
       const response = initialData
@@ -99,15 +109,21 @@ const CategoryForm = ({ dataHandler, initialData, categories }) => {
   const handleCategoryImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-
-    setCategoryImage(files); // store all selected files
+    
+    setCategoryImage(files);
     const previews = files.map((file) => URL.createObjectURL(file));
-    setCategoryPreview(previews); // store preview URLs as array
+    setCategoryPreview(previews);
+    setHasExistingImage(false);
   };
 
   const handleRemoveImage = (index) => {
     setCategoryImage((prev) => prev.filter((_, i) => i !== index));
     setCategoryPreview((prev) => prev.filter((_, i) => i !== index));
+    
+    // If we're removing the existing image (not a newly uploaded one)
+    if (initialData?.image && categoryPreview[index] === `https://api.jajamblockprints.com${initialData.image}`) {
+      setHasExistingImage(false);
+    }
   };
 
   const [groupedCategories, setGroupedCategories] = useState([]);

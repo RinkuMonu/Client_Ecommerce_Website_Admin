@@ -1,21 +1,30 @@
 // /src/api/apiMethods.js
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance } from "./axiosInstance";
 
 function apiGet(url, params = {}) {
   return axiosInstance.get(url, { params });
 }
 
-function apiPost(url, body, contentType = "multipart/form-data") {
-  const headers = {
-    "Content-Type": contentType,
-  };
-  return axiosInstance.post(url, body, { headers });
+function apiPost(url, body) {
+  let headers = {};
+  // const headers = {
+  //   "Content-Type": contentType,
+  // };
+  if (body instanceof FormData) {
+    headers["Content-Type"] = "multipart/form-data";
+  } else {
+    headers["Content-Type"] = "application/json";
+  }
+  return axiosInstance.post(url, body);
 }
 
-function apiPut(url, body, contentType = "application/json") {
-  const headers = {
-    "Content-Type": contentType,
-  };
+function apiPut(url, body) {
+  const headers = {};
+  if (body instanceof FormData) {
+    headers["Content-Type"] = "multipart/form-data";
+  } else {
+    headers["Content-Type"] = "application/json";
+  }
   return axiosInstance.put(url, body, { headers });
 }
 function apiPatch(url, body) {

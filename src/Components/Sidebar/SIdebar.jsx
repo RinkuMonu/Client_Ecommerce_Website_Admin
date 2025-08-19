@@ -301,6 +301,7 @@ import {
   OrderedListOutlined,
   UserAddOutlined,
   FolderAddOutlined,
+  TagOutlined,
 } from "@ant-design/icons";
 import { Avatar, Button, Layout, Menu, Dropdown, message, theme } from "antd";
 import { useNavigate } from "react-router";
@@ -438,6 +439,17 @@ function Sidebar() {
         {
           key: "received-orders",
           label: <Link to="/orders">Received Orders</Link>,
+        },
+      ],
+    },
+        {
+      key: "coupons",
+      icon: <TagOutlined />,
+      label: "Coupons",
+      children: [
+        {
+          key: "coupons",
+          label: <Link to="/coupons">Coupons</Link>,
         },
       ],
     },
