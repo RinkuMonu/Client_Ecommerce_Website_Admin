@@ -44,7 +44,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
   const [material, setMaterial] = useState("");
-  const [inStock, setInStock] = useState(true);
+  const [inStock, setInStock] = useState(0);
   const [categoryImage, setCategoryImage] = useState(null);
   const [categoryPreview, setCategoryPreview] = useState("");
 
@@ -76,7 +76,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
           (img) => `https://api.jajamblockprints.com${img}`
         ) || []
       );
-      setInStock(initialData?.stock > 0); 
+      setInStock(initialData?.inStock || 0);
     } else {
       resetForm();
     }
@@ -131,7 +131,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
           (!initialData && imageFiles.length === 0) ||
           !price ||
           !referenceWebsite ||
-          !category )) ||
+          !category)) ||
       (addCategory && (!productName || !categoryImage))
     ) {
       setSnackbarMessage("Please fill all required fields");
@@ -162,7 +162,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
       formData.append("referenceWebsite", referenceWebsite);
       formData.append("category", category);
       formData.append("material", material);
-     formData.append("stock", inStock ? 1 : 0);
+      formData.append("stock", inStock);
 
       imageFiles.forEach((file) => {
         formData.append("images", file);
@@ -404,7 +404,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                       key={index}
                       alignItems="center"
                       sx={{ mb: 1 }}
-                      style={{marginLeft:"10px"}}
+                      style={{ marginLeft: "10px" }}
                     >
                       <Grid item xs={5}>
                         <TextField
@@ -434,7 +434,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                         />
                       </Grid>
                       <Grid item xs={2}>
-                        <IconButton 
+                        <IconButton
                           onClick={() => {
                             if (index === sizes.length - 1) {
                               setSizes([...sizes, { sizes: "", price: 0 }]);
@@ -491,15 +491,17 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
                   </FormControl>
                 </Grid>
                 <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={inStock}
-                        onChange={(e) => setInStock(e.target.checked)}
-                      />
-                    }
-                    label="In Stock"
-                  />
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Stock Quantity"
+                      variant="outlined"
+                      type="number"
+                      inputProps={{ min: 0 }}
+                      value={inStock}
+                      onChange={(e) => setInStock(Number(e.target.value))}
+                    />
+                  </Grid>
                 </Grid>
               </>
             )}

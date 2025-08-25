@@ -53,8 +53,10 @@ const ProductsPage = () => {
   const [websites, setWebsites] = useState([]);
   const [filterWebsite, setfilterWebsite] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [stockqu, setstockQu] = useState("");
   // const [categories, setCategories] = useState([]);
   const API_ENDPOINT = `api/product/getproducts`;
+  console.log(data);
 
   const { user, setCategories, categories } = useUser();
 
@@ -68,9 +70,12 @@ const ProductsPage = () => {
         category: filterCategory,
         sortBy,
         sortOrder,
+        stock: stockqu,
       });
       const { products, pagination } = response.data;
       setData(products || []);
+      console.log(products);
+
       setTotalPages(pagination?.totalPages || 1);
     } catch (error) {
       setData([]);
@@ -136,6 +141,7 @@ const ProductsPage = () => {
     sortOrder,
     pageSize,
     filterCategory,
+    stockqu,
   ]);
 
   const deleteHandler = async (id) => {
@@ -269,7 +275,7 @@ const ProductsPage = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <FormControl fullWidth>
               <InputLabel>Sort By</InputLabel>
               <Select
@@ -294,6 +300,20 @@ const ProductsPage = () => {
               }
             >
               {sortOrder === "asc" ? "Ascending" : "Descending"}
+            </Button>
+          </Grid>
+          <Grid item xs={2}>
+            <Button
+              fullWidth
+              onClick={() =>
+                setstockQu((prev) => (prev === "in" ? "out" : "in"))
+              }
+            >
+              {stockqu === ""
+                ? "Check Stock"
+                : stockqu === "out"
+                ? "Low Stock"
+                : "High Stock"}
             </Button>
           </Grid>
         </Grid>
@@ -369,6 +389,16 @@ const ProductsPage = () => {
                   }}
                 >
                   <strong>Category</strong>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    border: "1px solid #ddd",
+                    whiteSpace: "nowrap",
+                    padding: "8px",
+                    backgroundColor: "#fbe5ec",
+                  }}
+                >
+                  <strong>stock</strong>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -477,6 +507,18 @@ const ProductsPage = () => {
                     >
                       {item.category?.name}
                     </TableCell>
+                    <TableCell
+                      sx={{
+                        border: "1px solid #ddd",
+                        whiteSpace: "nowrap",
+                        padding: "8px",
+                        color: item?.stock < 5 ? "red" : "inherit",
+                        fontWeight: item?.stock < 5 ? "bold" : "normal",
+                      }}
+                    >
+                      {item?.stock < 5 ? `⚠ ${item.stock}` : item.stock}
+                    </TableCell>
+
                     <TableCell
                       sx={{
                         border: "1px solid #ddd",
