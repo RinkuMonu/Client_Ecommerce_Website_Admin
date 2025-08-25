@@ -18,6 +18,7 @@ axiosInstance.interceptors.request.use(function (config) {
     config.headers["authorization"] = `Bearer ${String(token)}`;
   }
   return config;
+  
 });
 
 // Response Interceptor
