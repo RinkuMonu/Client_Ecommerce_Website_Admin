@@ -19,6 +19,7 @@ import PolicyPage from "../Components/Tables/Policy/PolicyPage";
 import BannersPage from "../Components/Tables/Banner/BannerPage";
 import ParentCategoryPage from "../Components/Tables/ParentCategories/ParentCategoryPage";
 import CouponPage from "../Components/Tables/Coupons/CouponPage";
+import NewsletterManager from "../Components/Tables/NewSletter/NewSletter";
 
 const AppRoutes = () => {
   useAxiosInterceptors();
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/settings/edit" element={<EditProfile />} />
       <Route path="/banners" element={<BannersPage />} />
       <Route path="/coupons" element={<CouponPage />} />
+      <Route path="/NewSletter" element={<NewsletterManager />} />
     </Routes>
   );
 };

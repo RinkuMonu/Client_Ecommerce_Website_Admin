@@ -313,6 +313,8 @@ import {
   DashboardOutlined,
   WebAssetOutlined,
 } from "@mui/icons-material";
+import UnsubscribeIcon from '@mui/icons-material/Unsubscribe';
+
 import logo from "../.././assets/images/logo.png";
 import { apiGet } from "../../api/apiMethods";
 import { useUser } from "../../Context/UserContext";
@@ -442,7 +444,7 @@ function Sidebar() {
         },
       ],
     },
-        {
+    {
       key: "coupons",
       icon: <TagOutlined />,
       label: "Coupons",
@@ -450,6 +452,17 @@ function Sidebar() {
         {
           key: "coupons",
           label: <Link to="/coupons">Coupons</Link>,
+        },
+      ],
+    },
+    {
+      key: "NewSletter",
+      icon: <UnsubscribeIcon />,
+      label: "NewSletter",
+      children: [
+        {
+          key: "NewSletter",
+          label: <Link to="/NewSletter">NewSletter</Link>,
         },
       ],
     },
