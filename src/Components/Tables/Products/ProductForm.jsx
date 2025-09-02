@@ -129,7 +129,7 @@ const ProductForm = ({ dataHandler, initialData, websites, addCategory }) => {
         (!productName ||
           !description ||
           (!initialData && imageFiles.length === 0) ||
-          !price ||
+          // !price ||
           !referenceWebsite ||
           !category)) ||
       (addCategory && (!productName || !categoryImage))
