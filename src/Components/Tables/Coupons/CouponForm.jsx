@@ -14,53 +14,50 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
-  Box,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
-import { EditNoteOutlined, Close } from "@mui/icons-material";
+import { EditNoteOutlined } from "@mui/icons-material";
 import { useUser } from "../../../Context/UserContext";
 import { apiPost, apiPut } from "../../../api/apiMethods";
 
 const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
   const [open, setOpen] = useState(false);
+
+  // form states
   const [code, setCode] = useState("");
   const [discountType, setDiscountType] = useState("percentage");
   const [discountValue, setDiscountValue] = useState(0);
-  const [minOrderAmount, setMinOrderAmount] = useState(0);
-  const [maxDiscountAmount, setMaxDiscountAmount] = useState(null);
+  const [usageLimit, setUsageLimit] = useState(1);
+  const [perUserLimit, setPerUserLimit] = useState(1);
   const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [usageLimit, setUsageLimit] = useState(null);
+  const [expiryDate, setExpiryDate] = useState("");
+  const [minimumOrderValue, setMinimumOrderValue] = useState(""); // optional
   const [isActive, setIsActive] = useState(true);
-  const [applicableProducts, setApplicableProducts] = useState("all");
-  const [productIds, setProductIds] = useState([]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const { user } = useUser();
 
-  // Convert ISO date to YYYY-MM-DD format for date inputs
+  // format date for input[type=date]
   const formatDateForInput = (isoDate) => {
     if (!isoDate) return "";
-    const date = new Date(isoDate);
-    return date.toISOString().split("T")[0];
+    return new Date(isoDate).toISOString().split("T")[0];
   };
 
+  // load initial data for update
   useEffect(() => {
     if (initialData) {
       setCode(initialData.code || "");
       setDiscountType(initialData.discountType || "percentage");
       setDiscountValue(initialData.discountValue || 0);
-      setMinOrderAmount(initialData.minOrderAmount || 0);
-      setMaxDiscountAmount(initialData.maxDiscountAmount || null);
+      setUsageLimit(initialData.usageLimit || 1);
+      setPerUserLimit(initialData.perUserLimit || 1);
       setStartDate(formatDateForInput(initialData.startDate));
-      setEndDate(formatDateForInput(initialData.endDate));
-      setUsageLimit(initialData.usageLimit || null);
+      setExpiryDate(formatDateForInput(initialData.expiryDate));
+      setMinimumOrderValue(initialData.minimumOrderValue || "");
       setIsActive(initialData.isActive !== false);
-      setApplicableProducts(initialData.applicableProducts || "all");
-      setProductIds(initialData.productIds || []);
     } else {
       resetForm();
     }
@@ -70,26 +67,18 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
     setCode("");
     setDiscountType("percentage");
     setDiscountValue(0);
-    setMinOrderAmount(0);
-    setMaxDiscountAmount(null);
+    setUsageLimit(1);
+    setPerUserLimit(1);
     setStartDate("");
-    setEndDate("");
-    setUsageLimit(null);
+    setExpiryDate("");
+    setMinimumOrderValue("");
     setIsActive(true);
-    setApplicableProducts("all");
-    setProductIds([]);
   };
 
+  // submit handler
   const handleSubmit = async () => {
-    if (!code || !discountType || !discountValue || !startDate || !endDate) {
+    if (!code || !discountType || !discountValue || !startDate || !expiryDate) {
       setSnackbarMessage("Please fill all required fields");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-      return;
-    }
-
-    if (new Date(startDate) > new Date(endDate)) {
-      setSnackbarMessage("End date must be after start date");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
@@ -99,14 +88,12 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
       code,
       discountType,
       discountValue: Number(discountValue),
-      minOrderAmount: Number(minOrderAmount),
-      maxDiscountAmount: maxDiscountAmount ? Number(maxDiscountAmount) : null,
+      usageLimit: usageLimit ? Number(usageLimit) : 1,
+      perUserLimit: perUserLimit ? Number(perUserLimit) : 1,
       startDate: new Date(startDate).toISOString(),
-      endDate: new Date(endDate).toISOString(),
-      usageLimit: usageLimit ? Number(usageLimit) : null,
+      expiryDate: new Date(expiryDate).toISOString(),
+      minimumOrderValue: minimumOrderValue ? Number(minimumOrderValue) : 0,
       isActive,
-      applicableProducts,
-      productIds,
       referenceWebsite: user?.referenceWebsite || "",
     };
 
@@ -116,7 +103,9 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
         : await apiPost("api/coupons", couponData);
 
       if (response.status === 200 || response.status === 201) {
-        setSnackbarMessage(response?.data?.message);
+        setSnackbarMessage(
+          response?.data?.message || "Coupon saved successfully"
+        );
         setSnackbarSeverity("success");
         setOpen(false);
         if (dataHandler) dataHandler();
@@ -188,7 +177,7 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
                 label={`Discount Value (${
                   discountType === "percentage" ? "%" : "₹"
                 })*`}
-                type="number"
+                type="text"
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
                 required
@@ -198,24 +187,31 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Minimum Order Amount"
-                type="number"
-                value={minOrderAmount}
-                onChange={(e) => setMinOrderAmount(e.target.value)}
+                label="Total Usage Limit"
+                type="text"
+                value={usageLimit}
+                onChange={(e) => setUsageLimit(e.target.value)}
               />
             </Grid>
 
-            {discountType === "percentage" && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Maximum Discount Amount"
-                  type="number"
-                  value={maxDiscountAmount || ""}
-                  onChange={(e) => setMaxDiscountAmount(e.target.value || null)}
-                />
-              </Grid>
-            )}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Per User Limit"
+                type="text"
+                value={perUserLimit}
+                onChange={(e) => setPerUserLimit(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Minimum Order Value (optional)"
+                type="text"
+                value={minimumOrderValue}
+                onChange={(e) => setMinimumOrderValue(e.target.value)}
+              />
+            </Grid>
 
             <Grid item xs={12} sm={6}>
               <TextField
@@ -232,22 +228,12 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="End Date*"
+                label="Expiry Date*"
                 type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 required
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Usage Limit (leave blank for unlimited)"
-                type="number"
-                value={usageLimit || ""}
-                onChange={(e) => setUsageLimit(e.target.value || null)}
               />
             </Grid>
 
@@ -263,36 +249,6 @@ const CouponForm = ({ dataHandler, initialData, fetchCoupons }) => {
                 label="Active Coupon"
               />
             </Grid>
-
-            {/* <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Applicable To</InputLabel>
-                <Select
-                  value={applicableProducts}
-                  onChange={(e) => setApplicableProducts(e.target.value)}
-                >
-                  <MenuItem value="all">All Products</MenuItem>
-                  <MenuItem value="specific">Specific Products</MenuItem>
-                  <MenuItem value="category">Product Categories</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid> */}
-
-            {applicableProducts === "specific" && (
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Product IDs (comma separated)"
-                  value={productIds.join(",")}
-                  onChange={(e) =>
-                    setProductIds(
-                      e.target.value.split(",").map((id) => id.trim())
-                    )
-                  }
-                  placeholder="123, 456, 789"
-                />
-              </Grid>
-            )}
           </Grid>
         </DialogContent>
 
