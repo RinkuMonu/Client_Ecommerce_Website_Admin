@@ -26,8 +26,8 @@ const CouponPage = () => {
   const fetchCoupons = async () => {
     try {
       const response = await apiGet("api/coupons");
-      // console.log(response?.data,"dfghuji")
-      if (Array.isArray(response?.data?.data)) setCoupons(response.data?.data);
+      if (Array.isArray(response?.data?.coupons))
+        setCoupons(response?.data.coupons);
       else console.error("Data is not an array:", response.data);
     } catch (error) {
       console.error("Error fetching coupons:", error);
@@ -67,7 +67,7 @@ const CouponPage = () => {
     const now = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (now < start) return "Scheduled";
     if (now > end) return "Expired";
     return "Active";
@@ -105,7 +105,7 @@ const CouponPage = () => {
               </TableRow>
             ) : (
               coupons?.map((coupon, index) => {
-                const status = getStatus(coupon.startDate, coupon.endDate);
+                const status = getStatus(coupon.startDate, coupon.expiryDate);
                 return (
                   <TableRow key={coupon._id} hover>
                     <TableCell>{index + 1}</TableCell>
@@ -116,7 +116,7 @@ const CouponPage = () => {
                       {coupon.discountType === "percentage"
                         ? `${coupon.discountValue}%`
                         : `₹${coupon.discountValue}`}
-                      {coupon.maxDiscountAmount && 
+                      {coupon.maxDiscountAmount &&
                         coupon.discountType === "percentage" && (
                           <Typography variant="caption" display="block">
                             (Max: ₹{coupon.maxDiscountAmount})
@@ -124,26 +124,27 @@ const CouponPage = () => {
                         )}
                     </TableCell>
                     <TableCell>
-                      {coupon.minOrderAmount > 0 
-                        ? `₹${coupon.minOrderAmount}` 
+                      {coupon.minimumOrderValue > 0
+                        ? `₹${coupon.minimumOrderValue}`
                         : "None"}
                     </TableCell>
                     <TableCell>
-                      {formatDate(coupon.startDate)} - {formatDate(coupon.endDate)}
+                      {formatDate(coupon.startDate)} -{" "}
+                      {formatDate(coupon.expiryDate)}
                     </TableCell>
+                    <TableCell>{coupon.usageLimit || "Unlimited"}</TableCell>
                     <TableCell>
-                      {coupon.usageLimit || "Unlimited"}
-                    </TableCell>
-                    <TableCell>
-                      <Chip 
+                      <Chip
                         label={status}
                         color={
-                          status === "Active" ? "success" : 
-                          status === "Expired" ? "error" : "warning"
+                          status === "Active"
+                            ? "success"
+                            : status === "Expired"
+                            ? "error"
+                            : "warning"
                         }
                         size="small"
                       />
-                      
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", gap: 1 }}>

@@ -14,12 +14,18 @@ import {
 } from "@mui/material";
 import { apiPut, apiGet } from "../../../api/apiMethods";
 
-const OfferDialog = ({ open, onClose, productId, initialDiscount = 0, onSuccess }) => {
+const OfferDialog = ({
+  open,
+  onClose,
+  productId,
+  initialDiscount = 0,
+  onSuccess,
+}) => {
   const [discount, setDiscount] = useState(initialDiscount);
   const [coupons, setCoupons] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState("");
 
- 
+  console.log(coupons);
   useEffect(() => {
     if (open) {
       setDiscount(initialDiscount);
@@ -27,12 +33,13 @@ const OfferDialog = ({ open, onClose, productId, initialDiscount = 0, onSuccess 
     }
   }, [open, initialDiscount]);
 
-  
   const fetchCoupons = async () => {
     try {
       const response = await apiGet("api/coupons");
-      if (Array.isArray(response?.data?.data)) {
-        setCoupons(response.data.data);
+      // console.log(response.data.coupons);
+      
+      if (Array.isArray(response?.data?.coupons)) {
+        setCoupons(response?.data?.coupons);
       } else {
         console.error("Data is not an array:", response.data);
       }
@@ -47,14 +54,12 @@ const OfferDialog = ({ open, onClose, productId, initialDiscount = 0, onSuccess 
     }
   }, [open]);
 
-
   const handleSave = async () => {
     try {
       await apiPut(`api/product/apply-coupon/${productId}`, {
-        
         couponId: selectedCoupon || null,
       });
-      if (onSuccess) onSuccess(); 
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error("Failed to update offer:", error);
@@ -90,8 +95,8 @@ const OfferDialog = ({ open, onClose, productId, initialDiscount = 0, onSuccess 
           >
             <MenuItem value="">None</MenuItem>
             {coupons.map((coupon) => (
-              <MenuItem key={coupon._id} value={coupon._id}>
-                {coupon.code} - {coupon.discountValue}% OFF
+              <MenuItem key={coupon?._id} value={coupon?._id}>
+                {coupon?.code} - {coupon?.discountValue}% OFF
               </MenuItem>
             ))}
           </Select>
