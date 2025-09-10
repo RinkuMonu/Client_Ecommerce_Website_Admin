@@ -10,7 +10,6 @@ const axiosInstance = axios.create({
   //   "Content-Type": "application/json",
   //    },
 });
-//backend kha h
 // Request Interceptor
 axiosInstance.interceptors.request.use(function (config) {
   const token = sessionStorage.getItem("accessToken");
