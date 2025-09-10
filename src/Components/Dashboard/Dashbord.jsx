@@ -428,7 +428,7 @@ function Dashboard() {
                 <Box>
                  
                   <Typography variant="body2" color="text.secondary">
-                    Orders: {topCategories[0].totalOrders} | Qty: {topCategories[0].totalQuantity}
+                    Orders: {topCategories[0].totalOrders} | Category Name: {topCategories[0].categoryName}
                   </Typography>
                 </Box>
               ) : (
