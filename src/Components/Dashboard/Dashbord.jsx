@@ -389,7 +389,7 @@ function Dashboard() {
               {topProducts.length > 0 ? (
                 <Box>
                   <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                    {/* {topProducts[0].productDetails?.productName} */}
+                    {topProducts[0].productDetails?.productName}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Orders: {topProducts[0].totalOrders} | Qty: {topProducts[0].totalQuantity}
