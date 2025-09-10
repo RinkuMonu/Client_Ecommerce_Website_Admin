@@ -36,6 +36,7 @@ const Login = () => {
     try {
       const response = await apiPost(API_ENDPOINT, { email, password });
       const { accessToken, refreshToken, userData } = response.data;
+      console.log(response.data);
       if (userData.role === "admin" || userData.role === 'vendor' || userData.role === 'super-admin') {
         if (accessToken && refreshToken) {
           sessionStorage.setItem("accessToken", accessToken);
