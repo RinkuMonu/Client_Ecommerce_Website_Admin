@@ -366,8 +366,12 @@ function Dashboard() {
           </Box>
         </Grid>
 
+
+{/* es 2 comments ko vaps uncomment krna hai  */}
+
         {/* Top Selling Product Card */}
-        <Grid item>
+
+        {/* <Grid item>
           <Card
             sx={{
               minWidth: 250,
@@ -402,10 +406,11 @@ function Dashboard() {
               )}
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
 
         {/* Top Selling Category Card */}
-        <Grid item>
+
+        {/* <Grid item>
           <Card
             sx={{
               minWidth: 250,
@@ -438,7 +443,9 @@ function Dashboard() {
               )}
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
+
+
 
       </Grid>
 
