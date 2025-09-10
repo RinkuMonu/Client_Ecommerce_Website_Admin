@@ -15,6 +15,8 @@ import TodayIcon from '@mui/icons-material/Today';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import EventIcon from '@mui/icons-material/Event';
+import { axiosInstance } from '../../api/axiosInstance';
+import React, { useEffect, useState } from 'react';
 
 const getRandomTrend = () => {
   const trends = ['up', 'down'];
@@ -39,8 +41,8 @@ const iconMap = {
   yearly: <EventIcon sx={{ fontSize: 16 }} />,
 };
 
-const SalesOverview = ({ salesData }) => {
-  if (!salesData) return null;
+const SalesOverview = () => {
+  const [salesData, setSalesData] = useState({}); // Use object instead of array
 
   const overviewItems = [
     { key: 'daily', label: 'Daily Sales' },
@@ -48,6 +50,22 @@ const SalesOverview = ({ salesData }) => {
     { key: 'monthly', label: 'Monthly Sales' },
     { key: 'yearly', label: 'Yearly Sales' },
   ];
+
+  const fetchSalesData = async () => {
+    try {
+      const response = await axiosInstance.get('/api/salesOverview');
+      console.log('Sales Overview Data:', response.data);
+      if (response.data.success) {
+        setSalesData(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching sales data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSalesData();
+  }, []);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -87,14 +105,13 @@ const SalesOverview = ({ salesData }) => {
 
       <Grid container spacing={3}>
         {overviewItems.map((item) => {
-          const trend = getRandomTrend();
-          const value = salesData[item.key]?.total || 0;
+          // const trend = getRandomTrend();
+          const value = salesData[item.key]?.total || 0; // Safely read total
           return (
             <Grid key={item.key} item xs={12} md={6} lg={3}>
               <Paper
                 sx={{
                   padding: 2,
-                  border: 0,
                   borderRadius: '0.5rem',
                   backgroundColor: '#f1f8fe',
                   boxShadow: 'rgba(143, 155, 166, 0.08) 0px 12px 24px -4px',
@@ -112,7 +129,6 @@ const SalesOverview = ({ salesData }) => {
                   justifyContent: 'space-between',
                 }}
               >
-                {/* Top Section: Icon + Chip */}
                 <Box
                   sx={{
                     display: 'flex',
@@ -131,7 +147,7 @@ const SalesOverview = ({ salesData }) => {
                     {iconMap[item.key]}
                   </Avatar>
 
-                  <Chip
+                  {/* <Chip
                     icon={trend.icon}
                     label={`${trend.percent}%`}
                     size="small"
@@ -142,10 +158,9 @@ const SalesOverview = ({ salesData }) => {
                         trend.direction === 'up' ? '#388e3c' : '#d32f2f',
                       fontWeight: 'bold',
                     }}
-                  />
+                  /> */}
                 </Box>
 
-                {/* Bottom Content */}
                 <Box sx={{ mt: 2 }}>
                   <Typography
                     variant="subtitle2"
