@@ -177,78 +177,77 @@ const ProductsPage = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
 
-  
 
 
 
 
-// const activateDealOfTheDay = async (productId) => {
-//   try {
-//     // Ask user for hours
-//     const input = window.prompt("Enter deal duration (in hours):", "1");
-//     if (!input) return; // user cancelled
 
-//     const duration = parseInt(input, 10);
-//     if (isNaN(duration) || duration <= 0) {
-//       alert("Please enter a valid number of hours.");
-//       return;
-//     }
+  // const activateDealOfTheDay = async (productId) => {
+  //   try {
+  //     // Ask user for hours
+  //     const input = window.prompt("Enter deal duration (in hours):", "1");
+  //     if (!input) return; // user cancelled
 
-//     const response = await fetch(`http://localhost:5007/api/product/deal/${productId}`, {
-//       method: "PUT",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ duration }),
-//     });
+  //     const duration = parseInt(input, 10);
+  //     if (isNaN(duration) || duration <= 0) {
+  //       alert("Please enter a valid number of hours.");
+  //       return;
+  //     }
 
-//     const result = await response.json();
+  //     const response = await fetch(`http://localhost:5007/api/product/deal/${productId}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ duration }),
+  //     });
 
-//     if (response.ok) {
-//       alert(result.message || `Deal activated for ${duration} hour(s)!`);
-//       fetchData(); // refresh table
-//     } else {
-//       alert(result.message || "Failed to activate deal");
-//     }
-//   } catch (err) {
-//     console.error("Error activating deal:", err);
-//     alert("Something went wrong while activating the deal.");
-//   }
-// };
+  //     const result = await response.json();
+
+  //     if (response.ok) {
+  //       alert(result.message || `Deal activated for ${duration} hour(s)!`);
+  //       fetchData(); // refresh table
+  //     } else {
+  //       alert(result.message || "Failed to activate deal");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error activating deal:", err);
+  //     alert("Something went wrong while activating the deal.");
+  //   }
+  // };
 
 
-const activateDealOfTheDay = async (productId) => {
-  try {
-    // Ask user for hours
-    const input = window.prompt("Enter deal duration (in hours):", "1");
-    if (!input) return; // user cancelled
+  const activateDealOfTheDay = async (productId) => {
+    try {
+      // Ask user for hours
+      const input = window.prompt("Enter deal duration (in hours):", "1");
+      if (!input) return; // user cancelled
 
-    const duration = parseInt(input, 10);
-    if (isNaN(duration) || duration <= 0) {
-      alert("Please enter a valid number of hours.");
-      return;
+      const duration = parseInt(input, 10);
+      if (isNaN(duration) || duration <= 0) {
+        alert("Please enter a valid number of hours.");
+        return;
+      }
+
+      // API call using axiosInstance
+      const response = await axiosInstance.put(`/api/product/deal/${productId}`, {
+        duration,
+      });
+
+      if (response.data?.success) {
+        alert(response.data?.message || `Deal activated for ${duration} hour(s)!`);
+        fetchData(); // refresh table
+      } else {
+        alert(response.data?.message || "Failed to activate deal");
+      }
+    } catch (err) {
+      console.error("Error activating deal:", err);
+      alert(
+        err.response?.data?.message ||
+        "Something went wrong while activating the deal."
+      );
     }
-
-    // API call using axiosInstance
-    const response = await axiosInstance.put(`/api/product/deal/${productId}`, {
-      duration,
-    });
-
-    if (response.data?.success) {
-      alert(response.data?.message || `Deal activated for ${duration} hour(s)!`);
-      fetchData(); // refresh table
-    } else {
-      alert(response.data?.message || "Failed to activate deal");
-    }
-  } catch (err) {
-    console.error("Error activating deal:", err);
-    alert(
-      err.response?.data?.message ||
-      "Something went wrong while activating the deal."
-    );
-  }
-};
-
+  };
 
 
   return (
@@ -622,6 +621,9 @@ const activateDealOfTheDay = async (productId) => {
                       </IconButton>
 
                       {/* New Deal of the Day Button */}
+                  
+                      {/* es comments ko bi un comments krna hai  */}
+
                       {/* <Button
                         size="small"
                         variant="contained"
@@ -631,16 +633,6 @@ const activateDealOfTheDay = async (productId) => {
                       >
                         {item.dealOfTheDay ? "Active Deal" : "Make Deal"}
                       </Button> */}
-
-                      <Button
-  size="small"
-  variant="contained"
-  color={item.dealOfTheDay ? "success" : "primary"}
-  onClick={() => activateDealOfTheDay(item._id)}
-  sx={{ ml: 1 }}
->
-  {item.dealOfTheDay ? "Active Deal" : "Make Deal"}
-</Button>
 
 
 
