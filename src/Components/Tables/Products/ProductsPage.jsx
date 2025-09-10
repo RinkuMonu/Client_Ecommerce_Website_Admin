@@ -250,6 +250,7 @@ const activateDealOfTheDay = async (productId) => {
 };
 
 
+
   return (
     <>
       <Box className={classes.bg1}>

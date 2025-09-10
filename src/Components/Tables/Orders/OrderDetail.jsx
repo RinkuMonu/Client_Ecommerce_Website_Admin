@@ -149,32 +149,32 @@ const OrderDetail = ({ open, onClose, data }) => {
     // };
 
     const handleDownload = async () => {
-    const input = invoiceRef.current;
-    if (!input) return;
+        const input = invoiceRef.current;
+        if (!input) return;
 
-    const canvas = await html2canvas(input, { scale: 2 });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+        const canvas = await html2canvas(input, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    // Padding in mm
-    const paddingX = 10; // left-right padding
-    const paddingY = 10; // top padding
+        // Padding in mm
+        const paddingX = 10; // left-right padding
+        const paddingY = 10; // top padding
 
-    pdf.addImage(
-        imgData,
-        'PNG',
-        paddingX,
-        paddingY,
-        pdfWidth - paddingX * 2, // width minus left+right padding
-        pdfHeight - paddingY // height adjust if needed
-    );
+        pdf.addImage(
+            imgData,
+            'PNG',
+            paddingX,
+            paddingY,
+            pdfWidth - paddingX * 2, // width minus left+right padding
+            pdfHeight - paddingY // height adjust if needed
+        );
 
-    pdf.save(`Invoice_${data?._id || 'order'}.pdf`);
-};
+        pdf.save(`Invoice_${data?._id || 'order'}.pdf`);
+    };
 
 
     // Print Invoice
