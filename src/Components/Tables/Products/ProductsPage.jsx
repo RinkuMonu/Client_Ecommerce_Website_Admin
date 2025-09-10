@@ -31,6 +31,8 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import DeleteDialog from "../Website/DeleteDialog";
 import { useUser } from "../../../Context/UserContext";
 import { makeStyles } from "@mui/styles";
+import { axiosInstance } from "../../../api/axiosInstance";
+
 const useStyles = makeStyles({
   selectInput: {
     minWidth: 200,
@@ -175,6 +177,79 @@ const ProductsPage = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
 
+  
+
+
+
+
+// const activateDealOfTheDay = async (productId) => {
+//   try {
+//     // Ask user for hours
+//     const input = window.prompt("Enter deal duration (in hours):", "1");
+//     if (!input) return; // user cancelled
+
+//     const duration = parseInt(input, 10);
+//     if (isNaN(duration) || duration <= 0) {
+//       alert("Please enter a valid number of hours.");
+//       return;
+//     }
+
+//     const response = await fetch(`http://localhost:5007/api/product/deal/${productId}`, {
+//       method: "PUT",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ duration }),
+//     });
+
+//     const result = await response.json();
+
+//     if (response.ok) {
+//       alert(result.message || `Deal activated for ${duration} hour(s)!`);
+//       fetchData(); // refresh table
+//     } else {
+//       alert(result.message || "Failed to activate deal");
+//     }
+//   } catch (err) {
+//     console.error("Error activating deal:", err);
+//     alert("Something went wrong while activating the deal.");
+//   }
+// };
+
+
+const activateDealOfTheDay = async (productId) => {
+  try {
+    // Ask user for hours
+    const input = window.prompt("Enter deal duration (in hours):", "1");
+    if (!input) return; // user cancelled
+
+    const duration = parseInt(input, 10);
+    if (isNaN(duration) || duration <= 0) {
+      alert("Please enter a valid number of hours.");
+      return;
+    }
+
+    // API call using axiosInstance
+    const response = await axiosInstance.put(`/api/product/deal/${productId}`, {
+      duration,
+    });
+
+    if (response.data?.success) {
+      alert(response.data?.message || `Deal activated for ${duration} hour(s)!`);
+      fetchData(); // refresh table
+    } else {
+      alert(response.data?.message || "Failed to activate deal");
+    }
+  } catch (err) {
+    console.error("Error activating deal:", err);
+    alert(
+      err.response?.data?.message ||
+      "Something went wrong while activating the deal."
+    );
+  }
+};
+
+
   return (
     <>
       <Box className={classes.bg1}>
@@ -312,8 +387,8 @@ const ProductsPage = () => {
               {stockqu === ""
                 ? "Check Stock"
                 : stockqu === "out"
-                ? "Low Stock"
-                : "High Stock"}
+                  ? "Low Stock"
+                  : "High Stock"}
             </Button>
           </Grid>
         </Grid>
@@ -544,6 +619,30 @@ const ProductsPage = () => {
                       <IconButton onClick={() => openOfferDialog(item._id)}>
                         <LocalOfferIcon />
                       </IconButton>
+
+                      {/* New Deal of the Day Button */}
+                      {/* <Button
+                        size="small"
+                        variant="contained"
+                        color={item.dealOfTheDay ? "success" : "primary"}
+                        onClick={() => activateDealOfTheDay(item._id)}
+                        sx={{ ml: 1 }}
+                      >
+                        {item.dealOfTheDay ? "Active Deal" : "Make Deal"}
+                      </Button> */}
+
+                      <Button
+  size="small"
+  variant="contained"
+  color={item.dealOfTheDay ? "success" : "primary"}
+  onClick={() => activateDealOfTheDay(item._id)}
+  sx={{ ml: 1 }}
+>
+  {item.dealOfTheDay ? "Active Deal" : "Make Deal"}
+</Button>
+
+
+
                       <ProductForm
                         categories={categories}
                         websites={websites}
